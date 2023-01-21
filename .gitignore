@@ -1,0 +1,10 @@
+*.elf
+*.oelf
+*.prx
+*.sprx
+*.o
+*.a
+*.bin
+**/gtaPayload.h
+**/git_ver.h
+.vs

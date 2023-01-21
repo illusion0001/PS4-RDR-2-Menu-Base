@@ -1,0 +1,87 @@
+name: Build modules
+
+on:
+  push:
+    paths-ignore:
+      - "**/*.md"
+      - '**/*.txt'
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - '**/*.txt'
+  workflow_dispatch:
+
+jobs:
+  build_prx:
+    runs-on: ubuntu-latest
+    env:
+      work_folder: gtaPayload
+    permissions:
+      contents: write
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+        fetch-depth: 0
+
+    - name: Checkout SDK
+      uses: actions/checkout@main
+      with:
+        repository: GoldHEN/GoldHEN_Plugins_SDK
+        path: SDK
+
+    - name: Setup variables and dependencies
+      run: |
+        echo "llvm_ver=12.0" >> $GITHUB_ENV
+        echo "llvm_path=$RUNNER_TOOL_CACHE/llvm" >> $GITHUB_ENV
+        echo "OO_PS4_TOOLCHAIN=$GITHUB_WORKSPACE/OpenOrbis/PS4Toolchain" >> $GITHUB_ENV
+        echo "commit_ver=1.$(git rev-list HEAD --count)" >> $GITHUB_ENV
+
+    - name: Download OpenOrbis Toolchain
+      run: curl -sL https://github.com/illusion0001/OpenOrbis-PS4-Toolchain/releases/latest/download/toolchain.tar.gz | tar xz -C ./
+
+    - name: Cache LLVM and Clang (${{ env.llvm_ver }})
+      id: cache-llvm
+      uses: actions/cache@main
+      with:
+        path: ${{ env.llvm_path }}
+        key: llvm-${{ env.llvm_ver }}
+
+    - name: Install LLVM and Clang (${{ env.llvm_ver }})
+      uses: KyleMayes/install-llvm-action@v1
+      with:
+        version: ${{ env.llvm_ver }}
+        directory: ${{ env.llvm_path }}
+        cached: ${{ steps.cache-llvm.outputs.cache-hit }}
+
+    - name: Build SDK Static Lib
+      working-directory: SDK
+      run: |
+        clang -v
+        make DEBUGFLAGS=1
+        echo "GOLDHEN_SDK=$(pwd)" >> $GITHUB_ENV
+
+    - name: Build (Release) (printf)
+      working-directory: ${{ env.work_folder }}
+      run: make PRINTF=1
+
+    - name: Push module artifact (Release prx)
+      uses: actions/upload-artifact@main
+      with:
+        name: PS4-RDR-2-Menu-Base_${{ env.commit_ver }}_prx_final
+        path: ${{ env.work_folder }}/bin/plugins/prx_final/*
+        if-no-files-found: error
+
+    - name: Push module artifact (Release elf)
+      uses: actions/upload-artifact@main
+      with:
+        name: PS4-RDR-2-Menu-Base_${{ env.commit_ver }}_elf_final
+        path: ${{ env.work_folder }}/bin/plugins/elf_final/*.elf
+        if-no-files-found: error
+
+    - name: Create Release
+      if: github.event_name == 'push'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create "$(date +%s)" "${{ env.work_folder }}/bin/plugins/prx_final/${{ env.work_folder }}.prx" --target "${{ GITHUB.SHA }}" -t "$(date '+%Y-%m-%d %H:%M:%S %A (%Z %z)')"
