@@ -1,7 +1,8 @@
 #include "invoker.h"
+#include <string.h>
 
 NativeArg_s nativeArg;
-u64 args[30];
+u64 args[32];
 
 void setVectors() {
 	while (nativeArg.vectorCount) {
@@ -19,4 +20,5 @@ void resetArgs() {
 	nativeArg.argCount = 0;
 	nativeArg.vectorCount = 0;
 	nativeArg.argValues = nativeArg.returnValue = args;
+	memset(args, 0, sizeof(args));
 }

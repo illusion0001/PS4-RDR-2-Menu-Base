@@ -6,7 +6,7 @@
 #define MaxSubmenuLevels 20
 
 typedef void(*Function)();
-typedef void(*KeyboardHandler)(char*);
+typedef void(*KeyboardHandler)(const char*);
 
 class Menu {
 private:
@@ -47,19 +47,19 @@ private:
 	static scrollData<int> intScrollData;
 	static scrollData<float> floatScrollData;
 
-	static void intScrollKeyboardHandler(char* text);
-	static void floatScrollKeyboardHandler(char* text);
+	static void intScrollKeyboardHandler(const char* text);
+	static void floatScrollKeyboardHandler(const char* text);
 
-	void playSound(char* sound, char* ref = "HUD_PLAYER_MENU");
+	void playSound(const char* sound,  const char* ref = "HUD_PLAYER_MENU");
 
 	enum Alignment {
 		Left,
 		Center,
 		Right
 	};
-	void drawText(char* text, Vector2 pos, int size, Font font, char* color, char* alignment, bool outline);
+	void drawText(const char* text, Vector2 pos, int size, Font font, const char* color, const char* alignment, bool outline);
 
-	void positionMenuText(char* text, float xPos, Alignment alignment);
+	void positionMenuText(const char* text, float xPos, Alignment alignment);
 
 	bool fastScrolling;
 
@@ -74,7 +74,7 @@ public:
 		sounds,
 		instructions;
 
-	char* title;
+	const char* title;
 	int maxOptions;
 
 	Color bannerColor,
@@ -90,24 +90,24 @@ public:
 	Menu(Menu& menu);
 	Menu(Function main);
 
-	static void drawCenterNotification(char* text, int duration = 3000);
-	static void drawFeedNotification(char* text, char* subtitle, char* title = "Menu Base");
+	static void drawCenterNotification(const char* text, int duration = 3000);
+	static void drawFeedNotification(const char* text,const  char* subtitle,const  char* title = "Menu Base");
 
 	void monitorButtons();
 	void run();
 
 	void changeSubmenu(Function submenu);
-	void openKeyboard(KeyboardHandler handler, int maxLength, char* defaultText = "");
+	void openKeyboard(KeyboardHandler handler, int maxLength,const  char* defaultText = "");
 
-	void banner(char* text);
+	void banner(const char* text);
 
 	bool hovered();
 	bool pressed();
 	bool scrolled();
 
-	Menu& option(char* text);
+	Menu& option(const char* text);
 	void spacer(char* text);
-	Menu& data(char* text);
+	Menu& data(const char* text);
 	Menu& data(bool b);
 	Menu& data(int i);
 	Menu& data(float f, int decimalPlaces);
@@ -120,7 +120,7 @@ public:
 	Menu& toggle(bool *b);
 	Menu& tip(char* text);
 	Menu& submenu(Function sub);
-	Menu& keyboard(KeyboardHandler handler, int maxLength, char* defaultText = "");
+	Menu& keyboard(KeyboardHandler handler, int maxLength, const char* defaultText = "");
 	Menu& editColor(Color* color, bool editAlpha, Function callback = nullptr);
 	template<typename F, typename... Args> Menu& call(F func, Args&&... args) {
 		if (pressed()) {

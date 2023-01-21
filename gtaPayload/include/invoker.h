@@ -15,6 +15,8 @@ struct NativeArg_s {
 };
 
 extern NativeArg_s nativeArg;
+#define NO_ASLR_ADDR 0x00400000
+extern uint64_t base_address;
 
 extern void resetArgs();
 extern void setVectors();
@@ -33,9 +35,11 @@ inline R getReturn() {
 template<typename N, typename... A>
 N invoke(u64 nativeAddress, A &&... args)
 {
+	memset(&nativeArg, 0, sizeof(nativeArg));
 	resetArgs();
 	int dummy[] = { 0, ((void)pushArg(std::forward<A>(args)), 0) ... };
-	((void(*)(NativeArg_s*))(void*)nativeAddress)(&nativeArg);
+	(void)dummy;
+	((void(*)(NativeArg_s*))(void*)(base_address + (nativeAddress - NO_ASLR_ADDR)))(&nativeArg);
 	setVectors();
 	return getReturn<N>();
 }

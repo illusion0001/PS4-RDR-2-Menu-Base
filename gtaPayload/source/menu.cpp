@@ -1,6 +1,8 @@
 #include "menu.h"
 #include "natives.h"
-#include "lib.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>  
 
 Menu::Menu() {}
 Menu::Menu(Menu& menu) {}
@@ -12,7 +14,7 @@ Menu::Menu(Function mainSubmenu) {
 	maxOptions = 15;
 }
 
-void Menu::playSound(char* sound, char* ref) {
+void Menu::playSound(const char* sound, const char* ref) {
 	if (sounds) {
 		AUDIO::_STOP_SOUND_WITH_NAME(sound, ref);
 		AUDIO::PLAY_SOUND_FRONTEND(sound, ref, 1, 0);
@@ -98,9 +100,9 @@ void Menu::monitorButtons() {
 	}
 }
 
-void Menu::drawText(char* text, Vector2 pos, int size, Font font, char* color, char* alignment, bool outline) {
+void Menu::drawText(const char* text, Vector2 pos, int size, Font font, const char* color, const char* alignment, bool outline) {
 	char buffer[512];
-	char* fontList[] = { "util", "catalog5", "body1", "body", "Debug_REG", "catalog4", "chalk", "catalog1", "ledger", "title", "wantedPostersGeneric", "gtaCash", "gamername", "handwritten" };
+	const char* fontList[] = { "util", "catalog5", "body1", "body", "Debug_REG", "catalog4", "chalk", "catalog1", "ledger", "title", "wantedPostersGeneric", "gtaCash", "gamername", "handwritten" };
 
 	sprintf(buffer, "<TEXTFORMAT INDENT='0' LEFTMARGIN='0' RIGHTMARGIN='0' LEADING='0'><FONT FACE='$%s' COLOR='#%s' SIZE='%i'><P ALIGN='%s'>%s</P></FONT></TEXTFORMAT>", fontList[font], color, size, alignment, text);
 
@@ -110,7 +112,7 @@ void Menu::drawText(char* text, Vector2 pos, int size, Font font, char* color, c
 	UIDEBUG::_BG_DISPLAY_TEXT(varString2, pos.x, pos.y);
 }
 
-void Menu::drawCenterNotification(char* text, int duration) {
+void Menu::drawCenterNotification(const char* text, int duration) {
 	const char* literalString = MISC::VAR_STRING(10, "LITERAL_STRING", text);
 	UILOG::_UILOG_SET_CACHED_OBJECTIVE(literalString);
 	UILOG::_UILOG_PRINT_CACHED_OBJECTIVE();
@@ -170,7 +172,7 @@ void Menu::changeSubmenu(Function submenu) {
 	submenuLevel++;
 }
 
-void Menu::openKeyboard(KeyboardHandler handler, int maxLength, char* defaultText) {
+void Menu::openKeyboard(KeyboardHandler handler, int maxLength, const char* defaultText) {
 	MISC::DISPLAY_ONSCREEN_KEYBOARD(0, "FMMC_KEY_TIP8", "", defaultText, "", "", "", maxLength);
 	keyboardHandler = handler;
 	keyboardActive = true;
@@ -178,7 +180,7 @@ void Menu::openKeyboard(KeyboardHandler handler, int maxLength, char* defaultTex
 
 Menu::scrollData<int> Menu::intScrollData;
 Menu::scrollData<float> Menu::floatScrollData;
-void Menu::intScrollKeyboardHandler(char* text) {
+void Menu::intScrollKeyboardHandler(const char* text) {
 	int i = atoi(text);
 	if (i <= intScrollData.max && i >= intScrollData.min) {
 		*intScrollData.var = i;
@@ -189,7 +191,7 @@ void Menu::intScrollKeyboardHandler(char* text) {
 		drawCenterNotification(buffer);
 	}
 }
-void Menu::floatScrollKeyboardHandler(char* text) {
+void Menu::floatScrollKeyboardHandler(const char* text) {
 	float f = (float)atof(text);
 	if (f <= floatScrollData.max && f >= floatScrollData.min) {
 		*floatScrollData.var = f;
@@ -203,7 +205,7 @@ void Menu::floatScrollKeyboardHandler(char* text) {
 	}
 }
 
-void Menu::banner(char* text) {
+void Menu::banner(const char* text) {
 	title = text;
 }
 
@@ -231,7 +233,7 @@ bool Menu::scrolled() {
 	return false;
 }
 
-void Menu::positionMenuText(char* text, float xPos, Alignment alignment) {
+void Menu::positionMenuText(const char* text, float xPos, Alignment alignment) {
 	int optionIndex = 0;
 	if (currentOption <= maxOptions && optionCount <= maxOptions) {
 		optionIndex = optionCount;
@@ -244,7 +246,7 @@ void Menu::positionMenuText(char* text, float xPos, Alignment alignment) {
 	}
 }
 
-Menu& Menu::option(char* text) {
+Menu& Menu::option(const char* text) {
 	optionCount++;
 	positionMenuText(text, 0.715f, Left);
 	return *this;
@@ -267,7 +269,7 @@ void Menu::spacer(char* text) {
 	}
 }
 
-Menu& Menu::data(char* text) {
+Menu& Menu::data(const char* text) {
 	positionMenuText(text, 0.935f, Right);
 	return *this;
 }
@@ -431,7 +433,7 @@ Menu& Menu::submenu(Function sub) {
 	return *this;
 }
 
-Menu& Menu::keyboard(KeyboardHandler handler, int maxLength, char* defaultText) {
+Menu& Menu::keyboard(KeyboardHandler handler, int maxLength, const char* defaultText) {
 	if (pressed()) {
 		openKeyboard(handler, maxLength, defaultText);
 	}
