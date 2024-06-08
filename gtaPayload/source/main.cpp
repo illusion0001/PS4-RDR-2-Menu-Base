@@ -26,8 +26,7 @@ struct proc_info procInfo = {};
 
 // For pre formatted strings
 void NotifyStatic(const char* IconUri, const char* text) {
-	OrbisNotificationRequest Buffer;
-	printf("Notify text:\n%s\n", text);
+	OrbisNotificationRequest Buffer{};
 	Buffer.type = NotificationRequest;
 	Buffer.unk3 = 0;
 	Buffer.useIconImageUri = 1;
